@@ -23,7 +23,7 @@ User Recommendations
 Color-Coded Risk Levels
 
 
-## 🤖 AI TOOLS USED
+## AI TOOLS USED
 
 **GitHub Copilot**:
 - `server.js` line 2 - Express setup
