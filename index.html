@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T&C Simplify</title>
+  <style>
+    /* AI Assistance: Tabnine provided CSS auto-completions */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      margin-bottom: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    textarea {
+      font-family: monospace;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover:not(:disabled) {
+      background: #5568d3;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .error {
+      background: #fee;
+      color: #c33;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    .success {
+      background: #efe;
+      color: #3c3;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    small {
+      color: #666;
+      display: block;
+      margin-top: 5px;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .logout-btn {
+      width: auto;
+      padding: 8px 16px;
+      background: #dc3545;
+      font-size: 14px;
+    }
+
+    .results {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 2px solid #eee;
+    }
+
+    .results h3 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .summary, .risk, .concerns, .recommendations {
+      margin-bottom: 25px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .badge.high {
+      background: #dc3545;
+    }
+
+    .badge.medium {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .badge.low {
+      background: #28a745;
+    }
+
+    .concern {
+      display: flex;
+      gap: 15px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .concern > div {
+      flex: 1;
+    }
+
+    .recommendations ul {
+      padding-left: 20px;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>T&C Simplify</h1>
+      <p>AI-Powered Terms & Conditions Analyzer</p>
+    </header>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="card">
+      <h2>Login</h2>
+      <div id="login-error" class="error hidden"></div>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password (6+ characters)" minlength="6" required>
+      <button onclick="handleLogin()">Sign In</button>
+    </div>
+
+    <!-- 2FA Screen -->
+    <div id="twofa-screen" class="card hidden">
+      <h2>Two-Factor Authentication</h2>
+      <p>Enter any 6-digit code to verify</p>
+      <div id="twofa-error" class="error hidden"></div>
+      <input type="text" id="twofa-code" placeholder="123456" maxlength="6" pattern="[0-9]{6}">
+      <button onclick="handleVerify2FA()">Verify</button>
+      <button class="secondary" onclick="showLogin()">Back to Login</button>
+    </div>
+
+    <!-- Analysis Screen -->
+    <div id="analysis-screen" class="card hidden">
+      <div class="header-row">
+        <h2>Document Analyzer</h2>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+      
+      <div id="analysis-error" class="error hidden"></div>
+      
+      <textarea id="analysis-text" rows="10" placeholder="Paste terms and conditions here (minimum 100 characters)..."></textarea>
+      <small id="char-count">0 characters</small>
+      
+      <button onclick="handleAnalyze()" id="analyze-btn">Analyze with AI</button>
+
+      <div id="results" class="results hidden">
+        <h3>📊 Analysis Results</h3>
+        
+        <div class="summary">
+          <strong>Summary:</strong>
+          <p id="result-summary"></p>
+        </div>
+
+        <div class="risk">
+          <strong>Overall Risk:</strong>
+          <span id="result-risk" class="badge"></span>
+        </div>
+
+        <div class="concerns">
+          <strong>Privacy Concerns:</strong>
+          <div id="result-concerns"></div>
+        </div>
+
+        <div class="recommendations">
+          <strong>Recommendations:</strong>
+          <ul id="result-recommendations"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // AI Assistance: GitHub Copilot generated the JavaScript interaction logic
+    // AI Assistance: Tabnine provided fetch pattern auto-completions
+
+    let currentToken = '';
+    let currentEmail = '';
+
+    // Character counter
+    const textArea = document.getElementById('analysis-text');
+    if (textArea) {
+      textArea.addEventListener('input', () => {
+        const count = textArea.value.length;
+        document.getElementById('char-count').textContent = `${count} characters`;
+        document.getElementById('analyze-btn').disabled = count < 100;
+      });
+    }
+
+    // Login handler
+    async function handleLogin() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('login-error');
+
+      if (!email || !password) {
+        errorDiv.textContent = 'Please enter email and password';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          currentEmail = email;
+          errorDiv.classList.add('hidden');
+          show2FA();
+        } else {
+          errorDiv.textContent = data.error || 'Login failed';
+          errorDiv.classList.remove('hidden');
+        }
+      } catch (error) {
+        errorDiv.textContent = 'Connection error';
+        errorDiv.classList.remove('hidden');
+      }
+    }
+
+    // 2FA verification handler
+    async function handleVerify2FA() {
+      const code = document.getElementById('twofa-code').value;
+      const errorDiv = document.getElementById('twofa-error');
+
+      if (code.length !== 6) {
+        errorDiv.textContent = 'Please enter a 6-digit code';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/verify-2fa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentEmail, code })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          currentToken = data.token;
+          errorDiv.classList.add('hidden');
+          showAnalysis();
+        } else {
+          errorDiv.textContent = data.error || 'Invalid code';
+          errorDiv.classList.remove('hidden');
+        }
+      } catch (error) {
+        errorDiv.textContent = 'Verification failed';
+        errorDiv.classList.remove('hidden');
+      }
+    }
+
+    // Analysis handler
+    async function handleAnalyze() {
+      const text = document.getElementById('analysis-text').value;
+      const errorDiv = document.getElementById('analysis-error');
+      const resultsDiv = document.getElementById('results');
+      const analyzeBtn = document.getElementById('analyze-btn');
+
+      if (text.length < 100) {
+        errorDiv.textContent = 'Text must be at least 100 characters';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      analyzeBtn.textContent = 'Analyzing...';
+      analyzeBtn.disabled = true;
+      errorDiv.classList.add('hidden');
+      resultsDiv.classList.add('hidden');
+
+      try {
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, token: currentToken })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          displayResults(data.analysis);
+          errorDiv.classList.add('hidden');
+        } else {
+          errorDiv.textContent = data.error || 'Analysis failed';
+          errorDiv.classList.remove('hidden');
+        }
+      } catch (error) {
+        errorDiv.textContent = 'Analysis error';
+        errorDiv.classList.remove('hidden');
+      } finally {
+        analyzeBtn.textContent = 'Analyze with AI';
+        analyzeBtn.disabled = text.length < 100;
+      }
+    }
+
+    // Display results
+    function displayResults(analysis) {
+      document.getElementById('result-summary').textContent = analysis.summary;
+      
+      const riskBadge = document.getElementById('result-risk');
+      riskBadge.textContent = analysis.overallRisk;
+      riskBadge.className = 'badge ' + analysis.overallRisk.toLowerCase();
+
+      const concernsDiv = document.getElementById('result-concerns');
+      concernsDiv.innerHTML = '';
+      analysis.privacyConcerns.forEach(concern => {
+        concernsDiv.innerHTML += `
+          <div class="concern">
+            <span class="badge ${concern.severity.toLowerCase()}">${concern.severity}</span>
+            <div>
+              <strong>${concern.issue}</strong>
+              <p>${concern.explanation}</p>
+            </div>
+          </div>
+        `;
+      });
+
+      const recList = document.getElementById('result-recommendations');
+      recList.innerHTML = '';
+      analysis.recommendations.forEach(rec => {
+        recList.innerHTML += `<li>${rec}</li>`;
+      });
+
+      document.getElementById('results').classList.remove('hidden');
+    }
+
+    // Navigation functions
+    function showLogin() {
+      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('twofa-screen').classList.add('hidden');
+      document.getElementById('analysis-screen').classList.add('hidden');
+    }
+
+    function show2FA() {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('twofa-screen').classList.remove('hidden');
+      document.getElementById('analysis-screen').classList.add('hidden');
+    }
+
+    function showAnalysis() {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('twofa-screen').classList.add('hidden');
+      document.getElementById('analysis-screen').classList.remove('hidden');
+    }
+
+    function logout() {
+      currentToken = '';
+      currentEmail = '';
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('twofa-code').value = '';
+      document.getElementById('analysis-text').value = '';
+      showLogin();
+    }
+
+    // Enter key handlers
+    document.getElementById('email')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+
+    document.getElementById('password')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+
+    document.getElementById('twofa-code')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleVerify2FA();
+    });
+  </script>
+</body>
+</html>
