@@ -1,4 +1,4 @@
-// server.js - Combined Backend + Frontend Server
+
 // AI Assistance: GitHub Copilot suggested the Express setup and static file serving
 
 const express = require('express');
@@ -13,9 +13,7 @@ app.use(express.static('public')); // Serve HTML/CSS/JS files
 const users = {};
 const sessions = {};
 
-// ===== API ENDPOINTS =====
-
-// Login endpoint
+// Login
 // AI Assistance: Copilot generated the authentication logic
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
@@ -28,11 +26,11 @@ app.post('/api/login', (req, res) => {
   res.json({ success: true, message: '2FA code sent' });
 });
 
-// 2FA verification endpoint
+// 2FA verification
 app.post('/api/verify-2fa', (req, res) => {
   const { email, code } = req.body;
   
-  // Accept any 6-digit code (dummy 2FA)
+  // Accept any 6-digit code 
   if (code && code.length === 6) {
     const token = 'token_' + Math.random().toString(36).substr(2, 9);
     sessions[token] = email;
@@ -42,7 +40,7 @@ app.post('/api/verify-2fa', (req, res) => {
   }
 });
 
-// AI Analysis endpoint
+// AI Analysis
 // AI Assistance: Amazon CodeWhisperer suggested the analysis structure
 app.post('/api/analyze', async (req, res) => {
   const { text, token } = req.body;
@@ -82,21 +80,18 @@ app.post('/api/analyze', async (req, res) => {
     ],
     overallRisk: "HIGH"
   };
-  
-  // Simulate processing time
+
   await new Promise(resolve => setTimeout(resolve, 2000));
   
   res.json({ success: true, analysis });
 });
 
-// Serve the main page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start server
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📝 Open your browser to http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Open your browser to http://localhost:${PORT}`);
 });
