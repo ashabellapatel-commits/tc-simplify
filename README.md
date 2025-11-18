@@ -1,4 +1,4 @@
-# T&C Simplify - Single Folder Version
+# T&C Simplify 
 
 **CS 3377 Programming Assignment 3**  
 Asha Patel & Corinne Dekshenieks
