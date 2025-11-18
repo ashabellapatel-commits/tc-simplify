@@ -1,4 +1,3 @@
-
 // AI Assistance: GitHub Copilot suggested the Express setup and static file serving
 
 const express = require('express');
