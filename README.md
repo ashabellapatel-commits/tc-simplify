@@ -38,22 +38,6 @@ Color-Coded Risk Levels
 
 All cited in comments!
 
----
----
-
-## 🎬 FOR VIDEO DEMO
-
-**Show**:
-1. Login with email/password
-2. Enter 2FA code (123456)
-3. Paste sample text
-4. Click "Analyze with AI"
-5. Show results with HIGH/MEDIUM/LOW concerns
-
-**Point out in code**:
-- AI tool citations (comments in files)
-- 2FA verification
-- Analysis logic
 
 ## WHAT EACH FILE DOES
 
